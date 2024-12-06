@@ -2,6 +2,9 @@
 
 C# source generator to generate guards for Entity Framework Core required navigation properties. Basically, it generates a boilerplate code presented in https://learn.microsoft.com/en-us/ef/core/miscellaneous/nullable-reference-types#required-navigation-properties.
 
+> [!WARNING]  
+> To use this generator, your project must target .NET 9.0 or newer.
+
 ## Installation
 
 - Modify your .csproj file by adding new `PackageReference`:
