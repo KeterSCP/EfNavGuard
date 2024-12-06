@@ -1,0 +1,43 @@
+﻿[  
+namespace SourceRootNamespace.SourceNamespace
+{
+    public class MyClass2{}
+}
+  
+using EfNavGuard;
+using SourceRootNamespace.SourceNamespace;
+
+namespace TargetRootNamespace.TargetNamespace
+{
+    public partial class MyClass
+    {
+        [GuardedNavigation]
+        public partial MyClass2 NavProp { get; set; }
+    }
+}
+  
+namespace EfNavGuard
+{
+    /// <summary>
+    /// Accessing navigation property marked with this attribute will throw an exception if it is not loaded.
+    /// </summary>
+    [System.AttributeUsage(System.AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    public sealed class GuardedNavigationAttribute : System.Attribute
+    {
+    }
+}
+  
+namespace TargetRootNamespace.TargetNamespace
+{
+    partial class MyClass
+    {
+        private global::SourceRootNamespace.SourceNamespace.MyClass2 _NavProp;
+    
+        public partial global::SourceRootNamespace.SourceNamespace.MyClass2 NavProp
+        {
+            get => _NavProp ?? throw new System.InvalidOperationException("NavProp was not loaded. Make sure to include it in the query.");
+            set => _NavProp = value;
+        }
+    }
+}
+]

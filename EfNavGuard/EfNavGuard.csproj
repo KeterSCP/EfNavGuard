@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>true</ImplicitUsings>
+        <LangVersion>Latest</LangVersion>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IsPackable>true</IsPackable>
+        <Authors>KeterSCP</Authors>
+        <PackageId>EfNavGuard</PackageId>
+        <Title>EfNavGuard</Title>
+        <Description>Generate boilerplate code for required navigations in EF Core</Description>
+        <PackageVersion>0.1.0</PackageVersion>
+        <PackageProjectUrl>https://github.com/KeterSCP/EfNavGuard</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/KeterSCP/EfNavGuard</RepositoryUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="./../LICENSE" Pack="true" PackagePath=""/>
+        <None Include="./../README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+
+</Project>
