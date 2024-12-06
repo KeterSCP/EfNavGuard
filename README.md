@@ -55,7 +55,7 @@ public partial class MainEntity
 
 public class OtherEntity
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 }
 ```
 
