@@ -1,17 +1,37 @@
 ﻿using System.Collections.Immutable;
 using EfNavGuard.Tests.Utils;
-using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace EfNavGuard.Tests;
 
 public class DefaultGenerationTests : VerifyTestBase
 {
+    public static TheoryData<LanguageVersion> OlderThanCSharp13Versions =
+    [
+        LanguageVersion.CSharp1,
+        LanguageVersion.CSharp2,
+        LanguageVersion.CSharp3,
+        LanguageVersion.CSharp4,
+        LanguageVersion.CSharp5,
+        LanguageVersion.CSharp6,
+        LanguageVersion.CSharp7,
+        LanguageVersion.CSharp7_1,
+        LanguageVersion.CSharp7_2,
+        LanguageVersion.CSharp7_3,
+        LanguageVersion.CSharp8,
+        LanguageVersion.CSharp9,
+        LanguageVersion.CSharp10,
+        LanguageVersion.CSharp11,
+        LanguageVersion.CSharp12
+    ];
+
     [Fact(DisplayName = "Should correctly generate code for navigation property with \"init\" initializer")]
     public async Task ShouldCorrectlyGenerateCodeForNavigationPropertyWithInitInitializer()
     {
         var sourceTexts = ImmutableArray.Create
         (
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 namespace SourceRootNamespace.SourceNamespace
                 {
@@ -19,7 +39,7 @@ public class DefaultGenerationTests : VerifyTestBase
                 }
                 """
             ),
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 using EfNavGuard;
                 using SourceRootNamespace.SourceNamespace;
@@ -48,7 +68,7 @@ public class DefaultGenerationTests : VerifyTestBase
     {
         var sourceTexts = ImmutableArray.Create
         (
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 namespace SourceRootNamespace.SourceNamespace
                 {
@@ -56,7 +76,7 @@ public class DefaultGenerationTests : VerifyTestBase
                 }
                 """
             ),
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 using EfNavGuard;
                 using SourceRootNamespace.SourceNamespace;
@@ -85,7 +105,7 @@ public class DefaultGenerationTests : VerifyTestBase
     {
         var sourceTexts = ImmutableArray.Create
         (
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 namespace SourceRootNamespace.SourceNamespace
                 {
@@ -93,7 +113,7 @@ public class DefaultGenerationTests : VerifyTestBase
                 }
                 """
             ),
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 using EfNavGuard;
                 using SourceRootNamespace.SourceNamespace;
@@ -110,10 +130,7 @@ public class DefaultGenerationTests : VerifyTestBase
             )
         );
 
-        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts, msbuildProperties: new Dictionary<string, string>
-            {
-                ["nullable"] = "enable"
-            })
+        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts, NullableContextOptions.Enable)
             .Select(st => st.GetText().ToString())
             .ToList();
 
@@ -125,7 +142,7 @@ public class DefaultGenerationTests : VerifyTestBase
     {
         var sourceTexts = ImmutableArray.Create
         (
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 namespace SourceRootNamespace.SourceNamespace
                 {
@@ -133,7 +150,7 @@ public class DefaultGenerationTests : VerifyTestBase
                 }
                 """
             ),
-            SourceText.From(
+            CSharpSourceText.From(
                 """
                 using EfNavGuard;
                 using SourceRootNamespace.SourceNamespace;
@@ -150,13 +167,85 @@ public class DefaultGenerationTests : VerifyTestBase
             )
         );
 
-        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts, msbuildProperties: new Dictionary<string, string>
-            {
-                ["nullable"] = "disable"
-            })
+        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts, nullableContextOptions: NullableContextOptions.Disable)
             .Select(st => st.GetText().ToString())
             .ToList();
 
         await Verify(generatedClassesTexts, GetSettings());
+    }
+
+    [Fact(DisplayName = "Should skip readonly navigation property when generating code")]
+    public async Task ShouldSkipReadonlyNavigationPropertyWhenGeneratingCode()
+    {
+        var sourceTexts = ImmutableArray.Create
+        (
+            CSharpSourceText.From(
+                """
+                namespace SourceRootNamespace.SourceNamespace
+                {
+                    public class MyClass2{}
+                }
+                """
+            ),
+            CSharpSourceText.From(
+                """
+                using EfNavGuard;
+                using SourceRootNamespace.SourceNamespace;
+
+                namespace TargetRootNamespace.TargetNamespace
+                {
+                    public partial class MyClass
+                    {
+                        [GuardedNavigation]
+                        public partial MyClass2 NavProp { get; }
+                    }
+                }
+                """
+            )
+        );
+
+        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts)
+            .Select(st => st.GetText().ToString())
+            .ToList();
+
+        await Verify(generatedClassesTexts, GetSettings());
+    }
+
+    [Theory(DisplayName = "Should not generate code if project language version is less than C# 13.0")]
+    [MemberData(nameof(OlderThanCSharp13Versions))]
+    public async Task ShouldNotGenerateCodeIfProjectLanguageVersionIsLessThanCSharp13(LanguageVersion languageVersion)
+    {
+        var sourceTexts = ImmutableArray.Create
+        (
+            CSharpSourceText.From(
+                """
+                namespace SourceRootNamespace.SourceNamespace
+                {
+                    public class MyClass2{}
+                }
+                """
+            ),
+            CSharpSourceText.From(
+                """
+                using EfNavGuard;
+                using SourceRootNamespace.SourceNamespace;
+
+                namespace TargetRootNamespace.TargetNamespace
+                {
+                    public partial class MyClass
+                    {
+                        [GuardedNavigation]
+                        public partial MyClass2 NavProp { get; set; }
+                    }
+                }
+                """
+            )
+        );
+
+        var generatedClassesTexts = TestHelper.GetAllSyntaxTrees(sourceTexts, languageVersion: languageVersion)
+            .Select(st => st.GetText().ToString())
+            .ToList();
+
+        await Verify(generatedClassesTexts, GetSettings()).UseParameters(languageVersion);
     }
 }

@@ -15,7 +15,7 @@
         <PackageId>EfNavGuard</PackageId>
         <Title>EfNavGuard</Title>
         <Description>Generate boilerplate code for required navigations in EF Core</Description>
-        <PackageVersion>0.1.0</PackageVersion>
+        <PackageVersion>1.0.0</PackageVersion>
         <PackageProjectUrl>https://github.com/KeterSCP/EfNavGuard</PackageProjectUrl>
         <RepositoryUrl>https://github.com/KeterSCP/EfNavGuard</RepositoryUrl>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
