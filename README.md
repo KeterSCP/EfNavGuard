@@ -11,7 +11,7 @@ C# source generator to generate guards for Entity Framework Core required naviga
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="EfNavGuard" Version="0.1.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="EfNavGuard" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 </ItemGroup>
 ```
 
